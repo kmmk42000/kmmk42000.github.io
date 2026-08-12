@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảng Điểm Hoa - Thế Giới Hoa Viên</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 12px;
+    background: #f9c9d6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  }
+  .card {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 24px;
+    padding: 32px 24px 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  h1 {
+    text-align: center;
+    color: #e6247a;
+    font-size: 2rem;
+    line-height: 1.3;
+    margin: 0 0 8px;
+  }
+  .emoji-divider {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 4px;
+  }
+  .count {
+    text-align: center;
+    color: #b95a83;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+  #search {
+    display: block;
+    width: 100%;
+    padding: 14px 18px;
+    font-size: 1rem;
+    border: 2px solid #f4b6cd;
+    border-radius: 14px;
+    outline: none;
+    margin-bottom: 12px;
+  }
+  #search:focus {
+    border-color: #e6247a;
+  }
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .filter-btn {
+    border: 2px solid #f4b6cd;
+    background: #fff;
+    color: #7a1240;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .filter-btn.active {
+    background: #e6247a;
+    border-color: #e6247a;
+    color: #fff;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+  thead th {
+    background: #f4a9c4;
+    color: #7a1240;
+    font-size: 1rem;
+    padding: 16px 10px;
+    text-align: left;
+  }
+  thead th:nth-child(3),
+  thead th:nth-child(4) {
+    text-align: center;
+  }
+  tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #f3e2e8;
+    vertical-align: middle;
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+  tbody tr:hover {
+    background: #fff5f8;
+  }
+  .thumb {
+    width: 60px;
+    height: 80px;
+    border-radius: 10px;
+    border: 2px solid #f4b6cd;
+    overflow: hidden;
+  }
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .name {
+    font-weight: 700;
+    color: #222;
+  }
+  .score {
+    text-align: center;
+    font-weight: 700;
+    color: #e6247a;
+    white-space: nowrap;
+  }
+  .quality {
+    text-align: center;
+    font-weight: 700;
+  }
+  .quality.orange { color: #d9791e; }
+  .quality.purple { color: #8e3fd6; }
+  .quality.blue { color: #2f7de1; }
+  .empty {
+    text-align: center;
+    color: #999;
+    padding: 24px;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>🌸 Bảng Điểm Hoa - Thế Giới Hoa Viên</h1>
+    <div class="emoji-divider">🌸</div>
+    <div class="count" id="count"></div>
+    <input id="search" type="text" placeholder="Nhập tên hoa để tìm kiếm...">
+    <div class="filters" id="filters">
+      <button class="filter-btn active" data-q="all">Tất cả</button>
+      <button class="filter-btn" data-q="Cam">Cam</button>
+      <button class="filter-btn" data-q="Tím">Tím</button>
+      <button class="filter-btn" data-q="Xanh Dương">Xanh Dương</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Hình ảnh</th>
+          <th>Tên Hoa</th>
+          <th>Điểm số</th>
+          <th>Phẩm chất (Màu)</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div id="empty-msg" class="empty" style="display:none;">Không tìm thấy hoa phù hợp.</div>
+  </div>
+
+<script type="application/json" id="flower-data">
+[
+  { "name": "Cây Sống Đời Hồng", "score": 11, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card01.png" },
+  { "name": "Mạch Môn Sương Trắng", "score": 11, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card02.png" },
+  { "name": "Hoa Lộ Vi Hồng", "score": 11, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card03.png" },
+  { "name": "Hoa Sao Nhái Tím", "score": 11, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card04.png" },
+  { "name": "Lan Vũ Nữ Đỏ", "score": 10, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card05.png" },
+  { "name": "Tuyết Mai Trắng", "score": 11, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card06.png" },
+  { "name": "Tuyết Mai Hồng", "score": 11, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card07.png" },
+  { "name": "Địa Lan Xanh", "score": 12, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card08.png" },
+  { "name": "Hoa Poppy Himalaya Tím", "score": 12, "quality": "Tím", "img": "images/077E65F7-92DB-4907-B875-3469D6DED4A4_card09.png" },
+  { "name": "Mưa Bụi Cô Tô", "score": 13, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card01.png" },
+  { "name": "Nguyệt Quý Mây Hồng", "score": 11, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card02.png" },
+  { "name": "Nguyệt Quý Ánh Vàng", "score": 10, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card03.png" },
+  { "name": "Nguyệt Quý Sắc Cam", "score": 11, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card04.png" },
+  { "name": "Tiếng Sao Hoa Lung", "score": 10, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card05.png" },
+  { "name": "Hoa Lung Tỏa Hương", "score": 11, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card06.png" },
+  { "name": "Mẫu Đơn Pha Lê Hồng", "score": 10, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card07.png" },
+  { "name": "Sách Mai Điệp Ảnh", "score": 13, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card08.png" },
+  { "name": "Hương Hoa Diên Vĩ", "score": 15, "quality": "Cam", "img": "images/082A2B68-213C-417B-9B9E-9FB1C23B9363_card09.png" },
+  { "name": "Cây Holly Vòng Xanh", "score": 14, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card01.png" },
+  { "name": "Bụp Hồng Cận Hồng", "score": 13, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card02.png" },
+  { "name": "Nhụy Linh Ánh Sao", "score": 13, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card03.png" },
+  { "name": "Hoa Bồ Câu Tím", "score": 10, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card04.png" },
+  { "name": "Hoa Bồ Câu Đỏ", "score": 11, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card05.png" },
+  { "name": "Loa Kèn Peru Đỏ", "score": 16, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card06.png" },
+  { "name": "Loa Kèn Peru Xanh", "score": 11, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card07.png" },
+  { "name": "Cẩm Chướng Gấm Đỏ", "score": 10, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card08.png" },
+  { "name": "Cẩm Chướng Gấm Tím", "score": 10, "quality": "Tím", "img": "images/0E9A165A-AA8C-4118-AC48-22C2F336BD3D_card09.png" },
+  { "name": "Hoa Anh Thảo Tím Nhạt", "score": 10, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card01.png" },
+  { "name": "Hoa Anh Thảo Xanh Nhạt", "score": 10, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card02.png" },
+  { "name": "Hoa Thỏ Li Xanh Biếc", "score": 11, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card03.png" },
+  { "name": "Hoa Thỏ Li Trắng Sáng", "score": 11, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card04.png" },
+  { "name": "Hoa Thỏ Li Tím Tươi", "score": 10, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card05.png" },
+  { "name": "Lan Hoàng Thảo Xanh Trắng", "score": 11, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card06.png" },
+  { "name": "Lan Hoàng Thảo Hồng Thắm", "score": 11, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card07.png" },
+  { "name": "Lan Hoàng Thảo Tím Dịu", "score": 11, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card08.png" },
+  { "name": "Yên Thảo Xanh Non", "score": 10, "quality": "Xanh Dương", "img": "images/1D172D1D-2431-417F-AA5E-E0871FB900C3_card09.png" },
+  { "name": "Diên Vĩ Đức Trắng Vàng", "score": 11, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card01.png" },
+  { "name": "Cây Sống Đời Đỏ", "score": 12, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card02.png" },
+  { "name": "Cây Sống Đời Vàng", "score": 11, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card03.png" },
+  { "name": "Hồng Môn Phấn", "score": 13, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card04.png" },
+  { "name": "Mạn Đà La", "score": 13, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card05.png" },
+  { "name": "Mộc Hương Vàng", "score": 10, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card06.png" },
+  { "name": "Mộc Hương Cam", "score": 10, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card07.png" },
+  { "name": "Mộc Hương Trắng", "score": 10, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card08.png" },
+  { "name": "Hoa Poppy Tím", "score": 10, "quality": "Tím", "img": "images/228837B8-97C5-42BB-942B-D5D660F70E6B_card09.png" },
+  { "name": "Dạ Yến Thảo Vàng", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card01.png" },
+  { "name": "Cúc Ping Pong Hồng", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card02.png" },
+  { "name": "Cúc Ping Pong Cam", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card03.png" },
+  { "name": "Cúc Ping Pong Trắng", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card04.png" },
+  { "name": "Hồng Môn Đỏ", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card05.png" },
+  { "name": "Hồng Môn Trắng", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card06.png" },
+  { "name": "Hoa Ông Lão", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card07.png" },
+  { "name": "Hoa Ly", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card08.png" },
+  { "name": "Phong Lộc Hoa", "score": 13, "quality": "Xanh Dương", "img": "images/2CA4F9DF-CDC5-4178-B64E-BDAD7BA0D2CE_card09.png" },
+  { "name": "Hoa Poppy Cam", "score": 12, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card01.png" },
+  { "name": "Hoa Ông Lão Tím", "score": 11, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card02.png" },
+  { "name": "Cúc Indo Hồng", "score": 11, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card03.png" },
+  { "name": "Hoa Phi Yến Lam", "score": 11, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card04.png" },
+  { "name": "Diên Vĩ Đức Hồng Tím", "score": 11, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card05.png" },
+  { "name": "Diên Vĩ Đức Kem Đỏ", "score": 12, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card06.png" },
+  { "name": "Mộc Lan Tím", "score": 11, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card07.png" },
+  { "name": "Mộc Lan Vàng", "score": 11, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card08.png" },
+  { "name": "Hồng Lenten Hồng", "score": 12, "quality": "Tím", "img": "images/2D76F02A-379B-4EF7-97C0-2E817547F7EA_card09.png" },
+  { "name": "Đỗ Quyên Vàng", "score": 11, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card01.png" },
+  { "name": "Đỗ Quyên Hồng", "score": 11, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card02.png" },
+  { "name": "Tử Linh Lan Hồng", "score": 11, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card03.png" },
+  { "name": "Đỗ Quyên Đỏ", "score": 10, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card04.png" },
+  { "name": "Tỏi Trời", "score": 13, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card05.png" },
+  { "name": "Hoa Baby Trắng", "score": 12, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card06.png" },
+  { "name": "Hoa Baby Hồng", "score": 12, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card07.png" },
+  { "name": "Hoa Baby Lam", "score": 12, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card08.png" },
+  { "name": "Thanh Cúc Tím", "score": 13, "quality": "Xanh Dương", "img": "images/37C574F1-393F-4C81-822B-6AC7CB191FBB_card09.png" },
+  { "name": "Thanh Cúc Hồng", "score": 13, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card01.png" },
+  { "name": "Thanh Cúc Lam", "score": 13, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card02.png" },
+  { "name": "Hoa Thúy Châu Tím", "score": 11, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card03.png" },
+  { "name": "Hoa Thúy Châu Trắng", "score": 10, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card04.png" },
+  { "name": "Huệ Hosta Tím", "score": 10, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card05.png" },
+  { "name": "Hoa Báo Xuân Vàng", "score": 10, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card06.png" },
+  { "name": "Me Đất Cam Vàng", "score": 11, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card07.png" },
+  { "name": "Rau Sam Hoa Trắng", "score": 10, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card08.png" },
+  { "name": "Bà Bà Na Hồng Nhạt", "score": 12, "quality": "Xanh Dương", "img": "images/549F346D-ACB9-4C00-89B2-A4C7B822602A_card09.png" },
+  { "name": "Lay Ơn Vàng", "score": 13, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card01.png" },
+  { "name": "Hải Quỳ Trắng", "score": 12, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card02.png" },
+  { "name": "Trúc Đào Xanh", "score": 10, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card03.png" },
+  { "name": "Hải Đường Hồng", "score": 11, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card04.png" },
+  { "name": "Hoa Loa Kèn Đỏ", "score": 11, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card05.png" },
+  { "name": "Hoa Loa Kèn Cam", "score": 11, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card06.png" },
+  { "name": "Thược Dược Đỏ", "score": 12, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card07.png" },
+  { "name": "Thược Dược Trắng", "score": 12, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card08.png" },
+  { "name": "Thược Dược Hồng", "score": 11, "quality": "Tím", "img": "images/553BC83B-39D8-4EFB-8F13-58EF68050B73_card09.png" },
+  { "name": "Nhài Mùa Đông", "score": 13, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card01.png" },
+  { "name": "Cúc Thược Dược Đỏ", "score": 11, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card02.png" },
+  { "name": "Hoa Liên Kiều Vàng", "score": 11, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card03.png" },
+  { "name": "Địa Lan Hồng", "score": 11, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card04.png" },
+  { "name": "Hoa Lồng Đèn Đỏ", "score": 10, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card05.png" },
+  { "name": "Lạc Tân Phụ Đỏ", "score": 13, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card06.png" },
+  { "name": "Lạc Tân Phụ Tím", "score": 13, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card07.png" },
+  { "name": "Lạc Tân Phụ Lam", "score": 13, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card08.png" },
+  { "name": "Vạn Tuế Lá Xanh", "score": 13, "quality": "Xanh Dương", "img": "images/666FB5A6-E12D-46B6-ABF0-3B724B9D7D30_card09.png" },
+  { "name": "Rosa Banksiae Trắng", "score": 14, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card01.png" },
+  { "name": "Tường Vi Hồng", "score": 12, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card02.png" },
+  { "name": "Tường Vi Xanh", "score": 13, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card03.png" },
+  { "name": "Tường Vi Vàng", "score": 13, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card04.png" },
+  { "name": "Lay Ơn Trắng", "score": 13, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card05.png" },
+  { "name": "Lay Ơn Tím", "score": 13, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card06.png" },
+  { "name": "Liễu Xanh", "score": 10, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card07.png" },
+  { "name": "Hoa Lục Bình Tím", "score": 10, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card08.png" },
+  { "name": "Gấu Bông", "score": 14, "quality": "Tím", "img": "images/6A4B2B86-FE95-4953-9E3A-E34C76AC386D_card09.png" },
+  { "name": "Gừng Sen Ban Mai", "score": 11, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card01.png" },
+  { "name": "Đăng Tiêu Cam Vàng", "score": 10, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card02.png" },
+  { "name": "Đông Trùng Thông Vàng", "score": 12, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card03.png" },
+  { "name": "Đông Trùng Thông Tím", "score": 13, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card04.png" },
+  { "name": "Đông Trùng Thông Hồng", "score": 13, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card05.png" },
+  { "name": "Ngót Nghẻo Hồng Phấn", "score": 13, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card06.png" },
+  { "name": "Ngót Nghẻo Đỏ Lửa", "score": 12, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card07.png" },
+  { "name": "Hoa Hồng KoKo LoKo", "score": 10, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card08.png" },
+  { "name": "Hoa Thụy Hương Vàng Nhạt", "score": 12, "quality": "Tím", "img": "images/6D1108ED-639A-4C57-AC61-7B1C2A9CD390_card09.png" },
+  { "name": "Ghim Cài Hồng Hạnh", "score": 10, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card01.png" },
+  { "name": "Diên Vĩ Thung Lũng Lam", "score": 13, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card02.png" },
+  { "name": "Diên Vĩ Thung Lũng Trắng", "score": 12, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card03.png" },
+  { "name": "Diên Vĩ Thung Lũng Hồng", "score": 13, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card04.png" },
+  { "name": "Cỏ Thuỷ Tiên Hồng Non", "score": 12, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card05.png" },
+  { "name": "Cỏ Thuỷ Tiên Cam", "score": 13, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card06.png" },
+  { "name": "Cỏ Thuỷ Tiên Vàng", "score": 12, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card07.png" },
+  { "name": "Nguyệt Quý Hồng", "score": 13, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card08.png" },
+  { "name": "Hoa Anh Thảo Hồng Nhạt", "score": 10, "quality": "Xanh Dương", "img": "images/80152AAC-509E-4DCD-8604-DF60C0EF4040_card09.png" },
+  { "name": "Yên Thảo Hồng Nhạt", "score": 13, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card01.png" },
+  { "name": "Yên Thảo Tím Khói", "score": 12, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card02.png" },
+  { "name": "Mẫu Đơn Hà Bao Hồng", "score": 12, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card03.png" },
+  { "name": "Mẫu Đơn Hà Bao Tím", "score": 12, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card04.png" },
+  { "name": "Bối Mẫu Trắng Ngọc", "score": 10, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card05.png" },
+  { "name": "Bối Mẫu Xanh Lam", "score": 10, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card06.png" },
+  { "name": "Hoa Hồng Sa Mạc Vàng Nhạt", "score": 12, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card07.png" },
+  { "name": "Hoa Hồng Sa Mạc Hồng Nhạt", "score": 12, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card08.png" },
+  { "name": "Quả Cầu Xanh Dịu", "score": 10, "quality": "Xanh Dương", "img": "images/86BEECE2-781B-49CE-AA8D-CC1F01A9AF21_card09.png" },
+  { "name": "San Hô Xanh", "score": 12, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card01.png" },
+  { "name": "Ngôi Sao Bethlehem", "score": 14, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card02.png" },
+  { "name": "Lung Linh Bóng Trăng", "score": 12, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card03.png" },
+  { "name": "Hoa Phi Yến Tím", "score": 11, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card04.png" },
+  { "name": "Hoa Hành Tím", "score": 13, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card05.png" },
+  { "name": "Vạn Tuế Lá Lam", "score": 13, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card06.png" },
+  { "name": "Nhài Nhật", "score": 14, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card07.png" },
+  { "name": "Lan Phượng Vĩ Đỏ", "score": 14, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card08.png" },
+  { "name": "Hoa Anh Thảo Vàng", "score": 11, "quality": "Tím", "img": "images/9749A69C-FA4F-400A-99C4-C091BCADAD7F_card09.png" },
+  { "name": "Hoa Lửa Thanh Ly", "score": 10, "quality": "Cam", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card01.png" },
+  { "name": "Lạc Anh Phù Hương", "score": 10, "quality": "Cam", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card02.png" },
+  { "name": "Bích Sắc Quỳnh Đài", "score": 10, "quality": "Cam", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card03.png" },
+  { "name": "Dạ Yến Thảo Lam", "score": 13, "quality": "Tím", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card04.png" },
+  { "name": "Hoa Anh Thảo Hồng", "score": 12, "quality": "Tím", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card05.png" },
+  { "name": "Hoa Anh Thảo Xanh", "score": 12, "quality": "Tím", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card06.png" },
+  { "name": "Lạp Mai Đỏ", "score": 11, "quality": "Tím", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card07.png" },
+  { "name": "Hồng Champagne", "score": 10, "quality": "Tím", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card08.png" },
+  { "name": "Mạn Châu Sa", "score": 13, "quality": "Tím", "img": "images/A5010070-FDFD-4D3E-A591-CACDC0547C5B_card09.png" },
+  { "name": "Hoa Thụy Hương Trắng Tuyết", "score": 10, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card01.png" },
+  { "name": "Hoa Thụy Hương Tím Khói", "score": 16, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card02.png" },
+  { "name": "Hoa Lập Kim Xanh Sẫm", "score": 10, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card03.png" },
+  { "name": "Hoa Lập Kim Vàng Nhạt", "score": 16, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card04.png" },
+  { "name": "Hoa Lập Kim Hồng San Hô", "score": 10, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card05.png" },
+  { "name": "Hoa Mặt Rồng Đỏ Tươi", "score": 11, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card06.png" },
+  { "name": "Đại Nham Đồng Vàng Mật", "score": 10, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card07.png" },
+  { "name": "Đại Nham Đồng Sắc Tím", "score": 11, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card08.png" },
+  { "name": "Đại Nham Đồng Hồng Sẫm", "score": 13, "quality": "Tím", "img": "images/AA0EF3A3-DC44-4B7E-B098-4A13DFE26A9C_card09.png" },
+  { "name": "Hoa Huyên Bông Lớn Tím", "score": 11, "quality": "Tím", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card01.png" },
+  { "name": "Hoa Huyên Bông Lớn Xanh Ngọc", "score": 10, "quality": "Tím", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card02.png" },
+  { "name": "Hoa Sao Sáng Bạc", "score": 11, "quality": "Tím", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card03.png" },
+  { "name": "Hoa Tử Đăng Cánh Kép", "score": 11, "quality": "Tím", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card04.png" },
+  { "name": "Nhài Dây Trắng Mây", "score": 10, "quality": "Tím", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card05.png" },
+  { "name": "Nhài Dây Sắc Sao", "score": 10, "quality": "Tím", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card06.png" },
+  { "name": "Từ Cô Hồng Nhạt", "score": 10, "quality": "Tím", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card07.png" },
+  { "name": "Từ Cô Tím Mây", "score": 10, "quality": "Tím", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card08.png" },
+  { "name": "Dạ Yến Thảo Hồng", "score": 12, "quality": "Xanh Dương", "img": "images/BB1C59AE-72AF-49BE-9A67-8ABA0C12E889_card09.png" },
+  { "name": "Hồng Cecil Lam", "score": 15, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card01.png" },
+  { "name": "Hồng Cecil Phấn", "score": 13, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card02.png" },
+  { "name": "Lạp Mai Hương Phi", "score": 16, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card03.png" },
+  { "name": "Lạp Mai Linh Lung", "score": 12, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card04.png" },
+  { "name": "Mẫu Đơn Ánh Tím", "score": 12, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card05.png" },
+  { "name": "Sắc Cam Mùa Xuân", "score": 13, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card06.png" },
+  { "name": "Mẫu Đơn Ánh Ngọc", "score": 13, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card07.png" },
+  { "name": "Mẫu Đơn Ánh Xanh", "score": 12, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card08.png" },
+  { "name": "Tiên Nữ Rải Hoa", "score": 12, "quality": "Cam", "img": "images/BDD2AD90-D5E7-4D64-B0FA-E002E2F2AAE1_card09.png" },
+  { "name": "Gấu Hoa Hồng", "score": 12, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card01.png" },
+  { "name": "Cừu Bông Ngọt Ngào", "score": 14, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card02.png" },
+  { "name": "Cúc Mẫu Đơn Tím Nho", "score": 12, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card03.png" },
+  { "name": "Cúc Mẫu Đơn Sứ Xanh", "score": 10, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card04.png" },
+  { "name": "Cúc Mẫu Đơn Cam Ráng Chiều", "score": 11, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card05.png" },
+  { "name": "Trái Tim Tìm Mật", "score": 14, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card06.png" },
+  { "name": "Trái Tim Đá Quý", "score": 11, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card07.png" },
+  { "name": "Hoa Nở Chưa Muộn", "score": 10, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card08.png" },
+  { "name": "Hoa Lửa Ráng Đỏ", "score": 13, "quality": "Cam", "img": "images/D6DBA626-019B-4AF5-8256-73300E3E3D29_card09.png" }
+]
+</script>
+
+<script>
+  const QUALITY_CLASS = {
+    "Cam": "orange",
+    "Tím": "purple",
+    "Xanh Dương": "blue"
+  };
+
+  const flowers = JSON.parse(document.getElementById("flower-data").textContent);
+
+  const tbody = document.getElementById("table-body");
+  const emptyMsg = document.getElementById("empty-msg");
+  const searchInput = document.getElementById("search");
+  const countEl = document.getElementById("count");
+  const filterBtns = document.querySelectorAll(".filter-btn");
+  let activeQuality = "all";
+
+  function render(list) {
+    tbody.innerHTML = "";
+    countEl.textContent = `Tổng cộng: ${list.length} / ${flowers.length} loại hoa`;
+    if (list.length === 0) {
+      emptyMsg.style.display = "block";
+      return;
+    }
+    emptyMsg.style.display = "none";
+    const frag = document.createDocumentFragment();
+    list.forEach(f => {
+      const tr = document.createElement("tr");
+
+      const tdImg = document.createElement("td");
+      const thumb = document.createElement("div");
+      thumb.className = "thumb";
+      const img = document.createElement("img");
+      img.src = f.img;
+      img.alt = f.name;
+      img.loading = "lazy";
+      thumb.appendChild(img);
+      tdImg.appendChild(thumb);
+
+      const tdName = document.createElement("td");
+      tdName.className = "name";
+      tdName.textContent = f.name;
+
+      const tdScore = document.createElement("td");
+      tdScore.className = "score";
+      tdScore.textContent = "+" + f.score;
+
+      const tdQuality = document.createElement("td");
+      tdQuality.className = "quality " + (QUALITY_CLASS[f.quality] || "");
+      tdQuality.textContent = f.quality;
+
+      tr.appendChild(tdImg);
+      tr.appendChild(tdName);
+      tr.appendChild(tdScore);
+      tr.appendChild(tdQuality);
+      frag.appendChild(tr);
+    });
+    tbody.appendChild(frag);
+  }
+
+  function sortByScoreDesc(list) {
+    return [...list].sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, "vi"));
+  }
+
+  function applyFilters() {
+    const q = searchInput.value.trim().toLowerCase();
+    let filtered = flowers.filter(f => f.name.toLowerCase().includes(q));
+    if (activeQuality !== "all") {
+      filtered = filtered.filter(f => f.quality === activeQuality);
+    }
+    render(sortByScoreDesc(filtered));
+  }
+
+  searchInput.addEventListener("input", applyFilters);
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      filterBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeQuality = btn.dataset.q;
+      applyFilters();
+    });
+  });
+
+  applyFilters();
+</script>
+</body>
+</html>
