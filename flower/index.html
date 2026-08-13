@@ -131,7 +131,6 @@
   .quality.blue { color: #2f7de1; }
   .quality.green { color: #2e9e4f; }
   .quality.red { color: #d32f3c; }
-  .quality.gold { color: #b8860b; }
   .empty {
     text-align: center;
     color: #999;
@@ -152,7 +151,6 @@
       <button class="filter-btn" data-q="Xanh Dương">Xanh Dương</button>
       <button class="filter-btn" data-q="Xanh Lá">Xanh Lá</button>
       <button class="filter-btn" data-q="Đỏ">Đỏ</button>
-      <button class="filter-btn" data-q="Vàng">Vàng</button>
     </div>
     <table>
       <thead>
@@ -517,8 +515,8 @@
   { "name": "Đào Nguyệt-Vân Tịch Chước Hoa", "score": 28, "quality": "Đỏ", "img": "images/05_DaoNguyet.webp" },
   { "name": "Hươu Thần Chín Màu", "score": 28, "quality": "Đỏ", "img": "images/06_HuouThanChinMau.webp" },
   { "name": "Hoa Bay Như Mộng", "score": 28, "quality": "Đỏ", "img": "images/07_HoaBayNhuMong.webp" },
-  { "name": "Mộc Lan Ngọc Ngà", "score": 25, "quality": "Vàng", "img": "images/08_MocLanNgocNga.webp" },
-  { "name": "Thuyền Tiên Sông Ngân", "score": 25, "quality": "Vàng", "img": "images/09_ThuyenTienSongNgan.webp" }
+  { "name": "Mộc Lan Ngọc Ngà", "score": 25, "quality": "Cam", "img": "images/08_MocLanNgocNga.webp" },
+  { "name": "Thuyền Tiên Sông Ngân", "score": 25, "quality": "Cam", "img": "images/09_ThuyenTienSongNgan.webp" }
 ]
 </script>
 
@@ -528,8 +526,7 @@
     "Tím": "purple",
     "Xanh Dương": "blue",
     "Xanh Lá": "green",
-    "Đỏ": "red",
-    "Vàng": "gold"
+    "Đỏ": "red"
   };
 
   const flowers = JSON.parse(document.getElementById("flower-data").textContent);
